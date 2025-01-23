@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${gpu.name}">GPU Detayı</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary-color: #10b981;
+            --secondary-dark: #059669;
+            --danger-color: #ef4444;
+            --danger-dark: #dc2626;
+            --background-start: #1e293b;
+            --background-end: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-start), var(--background-end));
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .gpu-detail-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .gpu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .gpu-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .like-button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .like-button.liked {
+            color: var(--danger-color);
+        }
+
+        .like-button:hover {
+            background: #f5f5f5;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .spec-item {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .spec-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .comments-section {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .comments-header {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .comment-form {
+            margin-bottom: 2rem;
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .submit-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .comment {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background: #f8fafc;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-user {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .comment-date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .comment-content {
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 0.5rem;
+            background: #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+            border-radius: 1rem;
+            transition: width 0.5s ease;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .logout-button {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: var(--danger-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <a href="/api/gpu" class="back-button">
+                ← GPU Listesine Dön
+            </a>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="logout-button">Çıkış Yap</button>
+            </form>
+        </div>
+
+        <div class="gpu-detail-card">
+            <div class="gpu-header">
+                <h1 class="gpu-title" th:text="${gpu.name}">GPU Adı</h1>
+                <form th:action="@{/api/gpu/{id}/like(id=${gpu.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="like-button" th:classappend="${gpu.likes != null and gpu.likes.![username].contains(currentUser) ? 'liked' : ''}">
+                        ♥ <span th:text="${gpu.likes != null ? gpu.likes.size() : 0}">0</span> Beğeni
+                    </button>
+                </form>
+            </div>
+
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <div class="spec-label">Mimari</div>
+                    <div class="spec-value" th:text="${gpu.architecture}">Mimari</div>
+                </div>
+
+                <div class="spec-item">
+                    <div class="spec-label">Çıkış Tarihi</div>
+                    <div class="spec-value" th:text="${gpu.launchDate}">Tarih</div>
+                </div>
+
+                <div class="spec-item">
+                    <div class="spec-label">Bellek Tipi</div>
+                    <div class="spec-value" th:text="${gpu.memoryType}">Bellek Tipi</div>
+                </div>
+
+                <div class="spec-item">
+                    <div class="spec-label">Bellek Boyutu</div>
+                    <div class="spec-value" th:text="${gpu.memorySize}">Bellek</div>
+                </div>
+
+                <div class="spec-item">
+                    <div class="spec-label">Boost Saat Hızı</div>
+                    <div class="spec-value" th:text="${gpu.boostClock}">Boost</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${T(java.lang.Math).min(gpu.getBoostClockPercentage(), 100)} + '%'"></div>
+                    </div>
+                </div>
+
+                <div class="spec-item">
+                    <div class="spec-label">Temel Saat Hızı</div>
+                    <div class="spec-value" th:text="${gpu.baseClock}">Base</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${T(java.lang.Math).min(gpu.getBaseClockPercentage(), 100)} + '%'"></div>
+                    </div>
+                </div>
+
+                <div class="spec-item">
+                    <div class="spec-label">TDP (Watt)</div>
+                    <div class="spec-value" th:text="${gpu.tdp}">TDP</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${T(java.lang.Math).min(gpu.getTdpPercentage(), 100)} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h2 class="comments-header">Yorumlar</h2>
+
+            <form th:action="@{/api/gpu/{id}/comment(id=${gpu.id})}" method="post" class="comment-form">
+                <textarea name="content" class="comment-input" rows="3" placeholder="Yorumunuzu yazın..." required></textarea>
+                <button type="submit" class="submit-button">Yorum Yap</button>
+            </form>
+
+            <div class="comments-list">
+                <div th:if="${comments.empty}" class="comment">
+                    <div class="comment-content">Henüz yorum yapılmamış. İlk yorumu siz yapın!</div>
+                </div>
+                <div th:each="comment : ${comments}" class="comment">
+                    <div class="comment-header">
+                        <span class="comment-user" th:text="${comment.user != null ? comment.user.username : 'Anonim'}">Kullanıcı</span>
+                        <span class="comment-date" th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}">Tarih</span>
+                    </div>
+                    <div class="comment-content" th:text="${comment.content}">Yorum içeriği</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

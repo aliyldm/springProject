@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Button Demo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
+            align-items: center;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        #console {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            display: none;
+        }
+        input {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button onclick="sendCheckRequest()">✓</button>
+        <button onclick="sendShutdownRequest()">✗</button>
+        
+        <!-- Yeni eklenen mesaj gönderme bölümü -->
+        <div>
+            <input type="text" id="messageInput" placeholder="Mesajınızı yazın...">
+            <button onclick="sendMessage()">Mesaj Gönder</button>
+        </div>
+    </div>
+    <div id="console"></div>
+
+    <script>
+        function showMessage(message) {
+            const console = document.getElementById('console');
+            console.textContent = message;
+            console.style.display = 'block';
+            setTimeout(() => {
+                console.style.display = 'none';
+            }, 3000);
+        }
+
+        function sendCheckRequest() {
+            fetch('/api/check', { method: 'POST' })
+                .then(response => response.text())
+                .then(message => showMessage(message))
+                .catch(error => showMessage('Hata: ' + error));
+        }
+
+        function sendShutdownRequest() {
+            fetch('/api/shutdown', { method: 'POST' })
+                .then(response => response.text())
+                .then(message => {
+                    showMessage(message);
+                    setTimeout(() => {
+                        window.close();
+                    }, 2000);
+                })
+                .catch(error => showMessage('Hata: ' + error));
+        }
+
+        // Yeni eklenen mesaj gönderme fonksiyonu
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+
+            fetch('/api/message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    showMessage(data.response);
+                    messageInput.value = ''; // Input'u temizle
+                })
+                .catch(error => showMessage('Hata: ' + error));
+        }
+    </script>
+</body>
+</html> 
